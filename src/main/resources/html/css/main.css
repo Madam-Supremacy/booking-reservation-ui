@@ -1,0 +1,29 @@
+body {
+    margin: 20px 20px 20px 20px;
+    background-color: #FDFDFD;
+}
+
+form {
+    padding: 20px 20px 20px 20px;
+    border-radius: 10px;
+    background-color: #F2F2F2;
+}
+
+input {
+    padding: 12px 20px;
+    border: 1px solid RGB(204, 204, 204);
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+input[type=submit] {
+    background-color: RGB(76, 175, 80);
+    color: white;
+    padding: 14px 20px;
+    border: none;
+}
+
+input[type=submit]:hover {
+    background-color: RGB(69, 160, 73);
+    cursor: pointer;
+}
