@@ -1,10 +1,10 @@
-package com.jabulile.booking.httpapi;
+package jabulile.httpapi;
 
 public class Resource {
-    private int id;
-    private String name;
-    private String type;
-    private int capacity;
+    private final int id;
+    private final String name;
+    private final String type;
+    private final int capacity;
 
     public Resource(int id, String name, String type, int capacity) {
         this.id = id;

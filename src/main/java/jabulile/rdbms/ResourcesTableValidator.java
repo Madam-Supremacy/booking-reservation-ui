@@ -1,14 +1,8 @@
-package com.jabulile.booking.rdbms;
+package jabulile.rdbms;
 
 public class ResourcesTableValidator extends AbstractTableValidator {
-
-    @Override
-    public String tableName() {
-        return "resources";
-    }
-
     @Override
     public String validationQuery() {
-        return "SELECT id, name, type FROM resources LIMIT 1;";
+        return "SELECT * FROM resources;";
     }
 }

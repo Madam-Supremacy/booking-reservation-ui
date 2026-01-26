@@ -1,13 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Web Exercises</title>
-    <meta charset="utf-8">
-    <meta content="author" name="Botlhale">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - Booking System</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
-    Hello, hello!
-</body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-list"></i> Resource Management</h1>
+            <nav>
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="resources.html" class="active"><i class="fas fa-list"></i> Resources</a>
+                <a href="bookings.html"><i class="fas fa-book"></i> Bookings</a>
+                <a href="availability.html"><i class="fas fa-check-circle"></i> Availability</a>
+            </nav>
+        </header>
 
+        <main>
+            <div class="management-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-building"></i> All Resources</h2>
+                    <button class="btn btn-primary" onclick="showAddResourceForm()">
+                        <i class="fas fa-plus"></i> Add New Resource
+                    </button>
+                </div>
+
+                <!-- Add Resource Form (Initially Hidden) -->
+                <div id="addResourceForm" class="form-container" style="display: none;">
+                    <h3><i class="fas fa-plus-circle"></i> Add New Resource</h3>
+                    <form id="resourceForm" onsubmit="addResource(event)">
+                        <div class="form-group">
+                            <label for="resourceName"><i class="fas fa-tag"></i> Resource Name</label>
+                            <input type="text" id="resourceName" required placeholder="e.g., Conference Room A">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resourceType"><i class="fas fa-tags"></i> Type</label>
+                            <select id="resourceType" required>
+                                <option value="">Select Type</option>
+                                <option value="Room">Room</option>
+                                <option value="Equipment">Equipment</option>
+                                <option value="Venue">Venue</option>
+                                <option value="Vehicle">Vehicle</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resourceCapacity"><i class="fas fa-users"></i> Capacity</label>
+                            <input type="number" id="resourceCapacity" required min="1" placeholder="e.g., 20">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resourceLocation"><i class="fas fa-map-marker-alt"></i> Location</label>
+                            <input type="text" id="resourceLocation" required placeholder="e.g., Building 1, Floor 3">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Resource
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="hideAddResourceForm()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Resources Table -->
+                <div class="table-container">
+                    <table id="resourcesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Capacity</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resourcesBody">
+                            <tr><td colspan="6">Loading resources...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Edit Resource Modal -->
+                <div id="editModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeEditModal()">&times;</span>
+                        <h3><i class="fas fa-edit"></i> Edit Resource</h3>
+                        <form id="editResourceForm" onsubmit="updateResource(event)">
+                            <input type="hidden" id="editResourceId">
+                            
+                            <div class="form-group">
+                                <label for="editResourceName"><i class="fas fa-tag"></i> Resource Name</label>
+                                <input type="text" id="editResourceName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editResourceType"><i class="fas fa-tags"></i> Type</label>
+                                <select id="editResourceType" required>
+                                    <option value="Room">Room</option>
+                                    <option value="Equipment">Equipment</option>
+                                    <option value="Venue">Venue</option>
+                                    <option value="Vehicle">Vehicle</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editResourceCapacity"><i class="fas fa-users"></i> Capacity</label>
+                                <input type="number" id="editResourceCapacity" required min="1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editResourceLocation"><i class="fas fa-map-marker-alt"></i> Location</label>
+                                <input type="text" id="editResourceLocation" required>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Update Resource
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Booking Reservation System &copy; 2026 | Resource Management</p>
+        </footer>
+    </div>
+
+    <script>
+        let resources = [];
+        
+        // Load resources on page load
+        document.addEventListener('DOMContentLoaded', loadResources);
+        
+        async function loadResources() {
+            try {
+                const response = await fetch('/api/resources');
+                resources = await response.json();
+                displayResources();
+            } catch (error) {
+                console.error('Error loading resources:', error);
+                document.getElementById('resourcesBody').innerHTML = 
+                    '<tr><td colspan="6">Error loading resources. Please try again.</td></tr>';
+            }
+        }
+        
+        function displayResources() {
+            const tableBody = document.getElementById('resourcesBody');
+            
+            if (resources.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">No resources found. Add your first resource!</td></tr>';
+                return;
+            }
+            
+            tableBody.innerHTML = resources.map(resource => `
+                <tr>
+                    <td>${resource.id}</td>
+                    <td>${resource.name}</td>
+                    <td><span class="resource-type ${resource.type.toLowerCase()}">${resource.type}</span></td>
+                    <td>${resource.capacity}</td>
+                    <td>${resource.location}</td>
+                    <td class="actions">
+                        <button class="btn btn-sm btn-edit" onclick="editResource(${resource.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-delete" onclick="deleteResource(${resource.id}, '${resource.name}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function showAddResourceForm() {
+            document.getElementById('addResourceForm').style.display = 'block';
+            document.getElementById('resourceForm').reset();
+        }
+        
+        function hideAddResourceForm() {
+            document.getElementById('addResourceForm').style.display = 'none';
+        }
+        
+        async function addResource(event) {
+            event.preventDefault();
+            
+            const resource = {
+                name: document.getElementById('resourceName').value,
+                type: document.getElementById('resourceType').value,
+                capacity: parseInt(document.getElementById('resourceCapacity').value),
+                location: document.getElementById('resourceLocation').value
+            };
+            
+            try {
+                const response = await fetch('/api/resources', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(resource)
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                } else {
+                    alert('Resource added successfully!');
+                    hideAddResourceForm();
+                    loadResources(); // Refresh the list
+                }
+            } catch (error) {
+                console.error('Error adding resource:', error);
+                alert('Failed to add resource. Please try again.');
+            }
+        }
+        
+        function editResource(id) {
+            const resource = resources.find(r => r.id === id);
+            if (!resource) return;
+            
+            document.getElementById('editResourceId').value = resource.id;
+            document.getElementById('editResourceName').value = resource.name;
+            document.getElementById('editResourceType').value = resource.type;
+            document.getElementById('editResourceCapacity').value = resource.capacity;
+            document.getElementById('editResourceLocation').value = resource.location;
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        async function updateResource(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('editResourceId').value;
+            const resource = {
+                name: document.getElementById('editResourceName').value,
+                type: document.getElementById('editResourceType').value,
+                capacity: parseInt(document.getElementById('editResourceCapacity').value),
+                location: document.getElementById('editResourceLocation').value
+            };
+            
+            try {
+                const response = await fetch(`/api/resources/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(resource)
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                } else {
+                    alert('Resource updated successfully!');
+                    closeEditModal();
+                    loadResources(); // Refresh the list
+                }
+            } catch (error) {
+                console.error('Error updating resource:', error);
+                alert('Failed to update resource. Please try again.');
+            }
+        }
+        
+        async function deleteResource(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/resources/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                } else {
+                    alert('Resource deleted successfully!');
+                    loadResources(); // Refresh the list
+                }
+            } catch (error) {
+                console.error('Error deleting resource:', error);
+                alert('Failed to delete resource. Please try again.');
+            }
+        }
+        
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        };
+    </script>
+</body>
 </html>

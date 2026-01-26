@@ -1,4 +1,4 @@
-package com.jabulile.booking.httpapi;
+package jabulile.httpapi;
 
 import java.time.LocalDate;
 

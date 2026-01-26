@@ -1,75 +1,63 @@
-package com.jabulile.booking.persistence;
+package jabulile.persistence;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.charset.StandardCharsets;
+import jabulile.rdbms.DatabaseManager;
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 public class DataLoader {
-
-    private static final String DB_FILE = "test.db";
-
-    private final Connection connection;
-
+    private DatabaseManager dbManager;
+    
     public DataLoader() {
-        this.connection = connect();
+        this.dbManager = new DatabaseManager();
+        initializeDatabase();
     }
-
-    // Connect to SQLite
-    private Connection connect() {
+    
+    public DatabaseManager getDatabaseManager() {
+        return dbManager;
+    }
+    
+    private void initializeDatabase() {
         try {
-            String url = "jdbc:sqlite:" + DB_FILE;
-            return DriverManager.getConnection(url);
+            // Create tables
+            executeSQLScript("create_resources.sql");
+            executeSQLScript("create_bookings.sql");
+            
+            // Load initial data
+            executeSQLScript("insert_resources.sql");
+            
         } catch (Exception e) {
-            throw new RuntimeException("Failed to connect to DB", e);
+            System.err.println("Failed to initialize database: " + e.getMessage());
         }
     }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
-    // Load SQL from a file
-    private String loadSQL(String fileName) {
-        try {
-            Path path = Path.of("src/main/resources/sql", fileName);
-            return Files.readString(path, StandardCharsets.UTF_8);
+    
+    private void executeSQLScript(String scriptName) {
+        try (Connection conn = dbManager.getConnection();
+             InputStream is = getClass().getClassLoader().getResourceAsStream("sql/" + scriptName)) {
+            
+            if (is == null) {
+                System.err.println("Script not found: " + scriptName);
+                return;
+            }
+            
+            try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
+                scanner.useDelimiter(";");
+                
+                try (Statement stmt = conn.createStatement()) {
+                    while (scanner.hasNext()) {
+                        String sql = scanner.next().trim();
+                        if (!sql.isEmpty() && !sql.startsWith("--")) {
+                            stmt.execute(sql);
+                        }
+                    }
+                }
+            }
+            
         } catch (Exception e) {
-            throw new RuntimeException("Failed to read SQL file: " + fileName, e);
-        }
-    }
-
-    // Run SQL statements
-    private void executeSQL(String sql) {
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(sql);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to execute SQL", e);
-        }
-    }
-
-    // Initialize database (tables + sample data)
-    public void initializeDatabase() {
-        System.out.println("Initializing database...");
-
-        // 1️⃣ Create tables
-        executeSQL(loadSQL("create_resources.sql"));
-        executeSQL(loadSQL("create_bookings.sql"));
-
-        // 2️⃣ Insert sample resources
-        executeSQL(loadSQL("insert_resources.sql"));
-
-        System.out.println("Database initialized successfully!");
-    }
-
-    // Close connection (optional)
-    public void close() {
-        try {
-            if (connection != null) connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error executing script " + scriptName + ": " + e.getMessage());
         }
     }
 }
