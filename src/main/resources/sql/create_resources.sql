@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS resources (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    type TEXT NOT NULL,       -- ROOM, LAB, EQUIPMENT
-    capacity INTEGER NOT NULL,
-    active BOOLEAN DEFAULT 1
+    type TEXT NOT NULL,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
