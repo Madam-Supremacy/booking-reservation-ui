@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Reservation System</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calendar-check"></i> Booking Reservation System</h1>
+            <nav>
+                <a href="/" class="active"><i class="fas fa-home"></i> Home</a>
+                <a href="resources.html"><i class="fas fa-list"></i> Resources</a>
+                <a href="bookings.html"><i class="fas fa-book"></i> Bookings</a>
+                <a href="availability.html"><i class="fas fa-check-circle"></i> Availability</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="dashboard">
+                <div class="welcome-section">
+                    <h2><i class="fas fa-door-open"></i> Welcome to the Booking System</h2>
+                    <p>Manage your resources and bookings efficiently with our comprehensive reservation system.</p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Total Resources</h3>
+                            <p id="totalResources">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Active Bookings</h3>
+                            <p id="activeBookings">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Available Now</h3>
+                            <p id="availableNow">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                    <div class="action-buttons">
+                        <a href="resources.html" class="action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add New Resource</span>
+                        </a>
+                        <a href="bookings.html" class="action-btn">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span>Create Booking</span>
+                        </a>
+                        <a href="availability.html" class="action-btn">
+                            <i class="fas fa-search"></i>
+                            <span>Check Availability</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="recent-bookings">
+                    <h2><i class="fas fa-history"></i> Recent Bookings</h2>
+                    <div class="table-container">
+                        <table id="recentBookingsTable">
+                            <thead>
+                                <tr>
+                                    <th>Resource</th>
+                                    <th>User</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBookingsBody">
+                                <tr><td colspan="5">Loading recent bookings...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Booking Reservation System &copy; 2026 | Built with Java & H2 Database</p>
+        </footer>
+    </div>
+
+    <script>
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                // Load resources count
+                const resourcesRes = await fetch('/api/resources');
+                const resources = await resourcesRes.json();
+                document.getElementById('totalResources').textContent = resources.length;
+                
+                // Load bookings count
+                const bookingsRes = await fetch('/api/bookings');
+                const bookings = await bookingsRes.json();
+                const activeBookings = bookings.filter(b => b.status === 'CONFIRMED').length;
+                document.getElementById('activeBookings').textContent = activeBookings;
+                
+                // Load availability
+                const now = new Date();
+                const startTime = now.toISOString().slice(0, 16).replace('T', ' ');
+                const endTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString().slice(0, 16).replace('T', ' ');
+                
+                const availabilityRes = await fetch('/api/availability', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ startTime, endTime })
+                });
+                const availability = await availabilityRes.json();
+                const availableCount = availability.availableResources?.filter(r => r.isAvailable).length || 0;
+                document.getElementById('availableNow').textContent = availableCount;
+                
+                // Load recent bookings
+                loadRecentBookings(bookings);
+                
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+                document.getElementById('totalResources').textContent = 'Error';
+                document.getElementById('activeBookings').textContent = 'Error';
+                document.getElementById('availableNow').textContent = 'Error';
+            }
+        }
+        
+        function loadRecentBookings(bookings) {
+            const recentBookings = bookings
+                .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
+                .slice(0, 5);
+            
+            const tableBody = document.getElementById('recentBookingsBody');
+            tableBody.innerHTML = '';
+            
+            if (recentBookings.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">No bookings found</td></tr>';
+                return;
+            }
+            
+            // We need to get resource names - for now show IDs
+            recentBookings.forEach(booking => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>Resource #${booking.resourceId}</td>
+                    <td>${booking.userId}</td>
+                    <td>${formatDateTime(booking.startTime)}</td>
+                    <td>${formatDateTime(booking.endTime)}</td>
+                    <td><span class="status-badge ${booking.status.toLowerCase()}">${booking.status}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return 'N/A';
+            const date = new Date(dateTimeStr.replace(' ', 'T'));
+            return date.toLocaleString();
+        }
+        
+        // Initialize dashboard on load
+        document.addEventListener('DOMContentLoaded', loadDashboardStats);
+    </script>
+</body>
+</html>
