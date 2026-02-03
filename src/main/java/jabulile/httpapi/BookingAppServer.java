@@ -17,13 +17,20 @@ public class BookingAppServer {
             AvailabilityController availabilityController = new AvailabilityController(dbManager);
             
             // Create and start web server
-            WebServer webServer = new WebServer(8080);
+            int port = Integer.parseInt(
+                System.getenv().getOrDefault("PORT", "8080")
+            );
+
+            WebServer webServer = new WebServer(port);
+
+
             webServer.addController("/api/resources", resourcesController);
             webServer.addController("/api/bookings", bookingsController);
             webServer.addController("/api/availability", availabilityController);
             
-            System.out.println("Booking App Server started on port 8080");
-            System.out.println("Access the application at: http://localhost:8080");
+            System.out.println("Booking App Server started on port " + port);
+            System.out.println("Access the application at: http://localhost:" + port);
+
             System.out.println("API endpoints:");
             System.out.println("  GET /api/resources");
             System.out.println("  POST /api/resources");
