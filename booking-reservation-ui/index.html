@@ -7,154 +7,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin: 20px;
-        }
+        /* Base Styles */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Roboto',sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#333; line-height:1.6; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+        .container { max-width:1200px; width:100%; background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden; margin:20px; }
 
         /* Header */
-        header {
-            background: #fff;
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        header h1 {
-            font-size: 1.8rem;
-            color: #4a90e2;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        nav {
-            display: flex;
-            gap: 20px;
-        }
-        nav a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        nav a.active, nav a:hover {
-            background: #4a90e2;
-            color: #fff;
-        }
+        header { background:#fff; padding:20px; border-bottom:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+        header h1 { font-size:1.8rem; color:#4a90e2; display:flex; align-items:center; gap:10px; }
+        nav { display:flex; gap:20px; }
+        nav a { text-decoration:none; color:#666; font-weight:500; padding:10px 15px; border-radius:8px; transition:all 0.3s ease; display:flex; align-items:center; gap:5px; }
+        nav a.active, nav a:hover { background:#4a90e2; color:#fff; }
 
         /* Main content */
-        main {
-            padding: 40px 20px;
-        }
-        .dashboard h2 {
-            font-size: 2.5rem;
-            color: #333;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .dashboard p {
-            text-align: center;
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-        }
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        .card {
-            background: #f9f9f9;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-        .card i {
-            color: #4a90e2;
-            margin-bottom: 20px;
-        }
-        .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        .card p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #4a90e2;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: background 0.3s ease;
-        }
-        .btn:hover {
-            background: #357abd;
-        }
+        main { padding:40px 20px; }
+        .dashboard h2 { font-size:2.5rem; color:#333; text-align:center; margin-bottom:10px; }
+        .dashboard p { text-align:center; color:#666; margin-bottom:40px; font-size:1.1rem; }
+        .dashboard-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:30px; }
+        .card { background:#f9f9f9; padding:30px; border-radius:12px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.1); transition:transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform:translateY(-5px); box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+        .card i { color:#4a90e2; margin-bottom:20px; transition: transform 0.3s ease; }
+        .card:hover i { transform:scale(1.2); }
+        .card h3 { font-size:1.5rem; margin-bottom:10px; color:#333; }
+        .card p { color:#666; margin-bottom:20px; }
+        .btn-primary { background:#4a90e2; color:#fff; border-radius:8px; padding:12px 24px; font-weight:500; text-decoration:none; display:inline-block; transition:background 0.3s ease, transform 0.2s ease; }
+        .btn-primary:hover { background:#357abd; transform:translateY(-2px); }
 
         /* Footer */
-        footer {
-            background: #f1f1f1;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #e0e0e0;
-        }
+        footer { background:#f1f1f1; padding:20px; text-align:center; color:#666; border-top:1px solid #e0e0e0; }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                text-align: center;
-            }
-            nav {
-                margin-top: 15px;
-            }
-            .dashboard h2 {
-                font-size: 2rem;
-            }
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Responsive */
+        @media(max-width:768px){ header{ flex-direction:column; text-align:center; } nav{ margin-top:15px; } .dashboard h2{ font-size:2rem; } .dashboard-cards{ grid-template-columns:1fr; } }
     </style>
 </head>
 <body>
@@ -162,7 +45,7 @@
         <header>
             <h1><i class="fas fa-calendar-alt"></i> Booking Reservation System</h1>
             <nav>
-                <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
                 <a href="resources.html"><i class="fas fa-list"></i> Resources</a>
                 <a href="bookings.html"><i class="fas fa-book"></i> Bookings</a>
                 <a href="availability.html"><i class="fas fa-check-circle"></i> Availability</a>
@@ -178,22 +61,22 @@
                     <div class="card">
                         <i class="fas fa-list fa-3x"></i>
                         <h3>Resources</h3>
-                        <p>View and manage all available resources.</p>
-                        <a href="resources.html" class="btn btn-primary">View Resources</a>
+                        <p id="resourcesCount">Loading resources...</p>
+                        <a href="resources.html" class="btn-primary">View Resources</a>
                     </div>
 
                     <div class="card">
                         <i class="fas fa-book fa-3x"></i>
                         <h3>Bookings</h3>
-                        <p>Check existing bookings or create new ones.</p>
-                        <a href="bookings.html" class="btn btn-primary">View Bookings</a>
+                        <p id="bookingsCount">Loading bookings...</p>
+                        <a href="bookings.html" class="btn-primary">View Bookings</a>
                     </div>
 
                     <div class="card">
                         <i class="fas fa-check-circle fa-3x"></i>
                         <h3>Availability</h3>
                         <p>Check which resources are available for your desired time.</p>
-                        <a href="availability.html" class="btn btn-primary">Check Availability</a>
+                        <a href="availability.html" class="btn-primary">Check Availability</a>
                     </div>
                 </div>
             </section>
@@ -203,5 +86,7 @@
             <p>Booking Reservation System &copy; 2026 | Home</p>
         </footer>
     </div>
+
+    <script src="js/index.js"></script>
 </body>
 </html>
