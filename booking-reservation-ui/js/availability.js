@@ -1,5 +1,5 @@
 // ================= CONFIG =================
-const API_BASE = "https://booking-backend.onrender.com";
+const API_BASE = "https://booking-reservation-system-umuy.onrender.com";
 
 // ================= GLOBAL VARIABLES =================
 let allResources = [];

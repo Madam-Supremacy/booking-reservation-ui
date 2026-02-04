@@ -1,4 +1,4 @@
-const API_BASE = "https://booking-backend.onrender.com";
+const API_BASE = "https://booking-reservation-system-umuy.onrender.com";
 
 const resourcesCountEl = document.getElementById("resourcesCount");
 const bookingsCountEl = document.getElementById("bookingsCount");
